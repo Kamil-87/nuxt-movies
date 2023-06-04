@@ -41,25 +41,28 @@
 <script setup lang="ts">
   import { ref, computed, useFetch } from '#imports'
   import { APIResponse } from "~/types/APIResponse";
-  import {refDebounced} from "@vueuse/shared";
 
   const searchTerm = ref('')
   const page = ref(1)
   const moviesData = ref({docs: []})
 
-  // const debouncedSearchTerm = refDebounced(searchTerm, 700)
-
   const url = computed(() => {
-    // console.log('debouncedSearchTerm', debounceSearchTerm.value)
     return `api/movies/search?query=${searchTerm.value}&page=${page.value}`;
   })
 
-  const searchValue = (event) => {
-    if (!event.target.value.length) {
-      return -1
-    }
+  const searchValue = () => {
+    debounce(fetchData(), 500)
+  }
 
-   fetchData()
+
+  const debounce = (func, ms) => {
+    let timeout = null
+
+    return function() {
+      const funcCall = () => { func.apply(this, arguments) }
+      clearTimeout(timeout)
+      timeout = setTimeout(funcCall, ms)
+    }
   }
 
   const fetchData = async () => {
