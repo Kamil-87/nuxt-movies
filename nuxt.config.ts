@@ -4,9 +4,9 @@ export default defineNuxtConfig({
         'nuxt-windicss',
         '@vueuse/nuxt'
     ],
-    runtimeConfig: {
-        apiKey: '',
-        apiBaseUrl: '',
-        public: {}
-    }
+    // runtimeConfig: {
+    //     apiKey: '',
+    //     apiBaseUrl: '',
+    //     public: {}
+    // }
 })

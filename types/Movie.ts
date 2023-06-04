@@ -1,12 +1,19 @@
+interface Poster {
+    previewUrl: string
+    url: string
+}
+
+interface Genres {
+    name: string
+}
+
 export type Movie = {
     id: number
-    title: string
-    genres: {
-        id: number
-        name: string
-    }[]
-    release_date: string
-    runtime: number | null
-    overview: string
-    poster_path: string
+    name: string
+    genres: string[] | Genres[]
+    year: string
+    movieLength: number | null
+    description?: string
+    shortDescription?: string
+    poster: string | Poster
 }

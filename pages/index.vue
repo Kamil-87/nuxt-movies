@@ -7,6 +7,7 @@
           type="text"
           placeholder="Search..."
           v-model="searchTerm"
+          @input="searchValue"
       >
     </div>
 
@@ -14,51 +15,73 @@
 
         class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 self-center gap-x-10 gap-y-10 mb-10">
       <div
-          v-for="movie in data?.results"
+          v-for="movie in moviesData?.docs"
           :key="movie?.id"
       >
         <MovieCard :movie="movie" />
-        {{ movie.title }}
+
       </div>
     </div>
-    <div class="flex justify-center">
+    <div v-if="moviesData?.docs.length > 0" class="flex justify-center">
       <button
           v-if="!disabledPrevious"
-          @click="page--"
+          @click="previousPage"
           class="px-4 py-2 text-m border rounded-lg"
       >Previous</button>
       <button class="px-4 py-2 text-m border rounded-lg">{{ page }}</button>
       <button
           v-if="!disabledNext"
           class="px-4 py-2 text-m border rounded-lg"
-          @click="page++"
+          @click="nextPage"
       >Next</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { ref, computed, useFetch } from '#imports'
   import { APIResponse } from "~/types/APIResponse";
-  import {computed, ref} from "@vue/reactivity";
-  import {useFetch} from "#app";
   import {refDebounced} from "@vueuse/shared";
 
   const searchTerm = ref('')
   const page = ref(1)
+  const moviesData = ref({docs: []})
+
+  // const debouncedSearchTerm = refDebounced(searchTerm, 700)
+
+  const url = computed(() => {
+    // console.log('debouncedSearchTerm', debounceSearchTerm.value)
+    return `api/movies/search?query=${searchTerm.value}&page=${page.value}`;
+  })
+
+  const searchValue = (event) => {
+    if (!event.target.value.length) {
+      return -1
+    }
+
+   fetchData()
+  }
+
+  const fetchData = async () => {
+    const { data } = await useFetch<APIResponse>(url.value)
+    moviesData.value = data.value
+  }
+
+  const nextPage = () => {
+    page.value++
+    fetchData()
+  }
+
+  const previousPage = () => {
+    page.value--
+    fetchData()
+  }
 
   const disabledPrevious = computed(() => {
     return page.value === 1
   })
 
   const disabledNext = computed(() => {
-    return page.value + 1 === data?.value.total_pages
+    return page.value + 1 === moviesData?.value.pages
   })
-
-  const debounceSearchTerm = refDebounced(searchTerm, 700)
-
-  const url = computed(() => {
-    return `api/movies/search?query=${debounceSearchTerm.value}&page=${page.value}`
-  })
-
-  const { data } = await useFetch<APIResponse>(url)
 </script>
